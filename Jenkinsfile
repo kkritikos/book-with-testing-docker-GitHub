@@ -1,16 +1,11 @@
 pipeline {
-	docker.image('maven:3.3.3-jdk-8').inside {
-  		git '…your-sources…'
-  		sh 'mvn -B clean install'
-	}
 	environment { 
         DOCKER_HOST = 'tcp://127.0.0.1:2375'
     }
-    agent {
-        docker {
-            image 'maven:3.8.1-adoptopenjdk-11'
-            args '-v /root/.m2:/root/.m2'
-        }
+    agent any
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "M3"
     }
     stages {
     	stage('Init') {
