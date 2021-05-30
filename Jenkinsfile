@@ -1,4 +1,11 @@
 pipeline {
+	docker.image('maven:3.3.3-jdk-8').inside {
+  		git '…your-sources…'
+  		sh 'mvn -B clean install'
+	}
+	environment { 
+        DOCKER_HOST = 'tcp://127.0.0.1:2375'
+    }
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
@@ -17,10 +24,6 @@ pipeline {
             }
         }
         stage('Test') {
-        	environment { 
-        		DOCKER_HOST = 'tcp://127.0.0.1:2375'
-    		}
-        	
             steps {	
                 sh 'mvn verify' 
             }
