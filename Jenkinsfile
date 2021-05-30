@@ -17,6 +17,10 @@ pipeline {
             }
         }
         stage('Test') {
+        	environment { 
+        		DOCKER_HOST = 'tcp://127.0.0.1:2375'
+    		}
+        	
             steps {	
                 sh 'mvn verify' 
             }
