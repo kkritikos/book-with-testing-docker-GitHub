@@ -18,7 +18,7 @@ pipeline {
         }
         stage('Test') {
             steps {	
-                sh 'mvn verify -P tomcat8x' 
+                sh 'mvn verify' 
             }
             post {
                 always {
