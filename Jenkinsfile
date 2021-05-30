@@ -43,7 +43,7 @@ pipeline {
 	            environment name: 'DEPLOY_TO', value: 'production'
 	        }
             steps {
-                sh "mvn -B -DskipTests -DskipITs install"
+                sh "mvn -B -DskipTests -DskipITs -Dregistry.username=${user} -Dregistry.password=${password} install"
                 sh('''
                     git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
                     git push origin HEAD:$TARGET_BRANCH
