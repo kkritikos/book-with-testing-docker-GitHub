@@ -17,11 +17,11 @@ pipeline {
             }
         }
         stage('Test') {
-        	environment { 
-        		DOCKER_HOST = 'unix:///var/run/docker.sock'
-    		}
+        	//environment { 
+        		//DOCKER_HOST = 'unix:///var/run/docker.sock'
+    		//}
             steps {	
-                sh 'mvn verify' 
+                sh 'mvn -DDOCKER_HOST=unix:///var/run/docker.sock verify' 
             }
             post {
                 always {
