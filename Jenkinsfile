@@ -21,7 +21,7 @@ pipeline {
         		//DOCKER_HOST = 'unix:///var/run/docker.sock'
     		//}
             steps {	
-                sh 'mvn -DDOCKER_HOST=unix:///var/run/docker.sock verify' 
+                sh 'mvn -DdockerHost=unix:///var/run/docker.sock verify' 
             }
             post {
                 always {
