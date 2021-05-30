@@ -1,7 +1,4 @@
 pipeline {
-	environment { 
-        DOCKER_HOST = 'unix:///var/run/docker.sock'
-    }
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
@@ -20,6 +17,9 @@ pipeline {
             }
         }
         stage('Test') {
+        	environment { 
+        		DOCKER_HOST = 'unix:///var/run/docker.sock'
+    		}
             steps {	
                 sh 'mvn verify' 
             }
