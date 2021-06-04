@@ -27,7 +27,7 @@ node {
         sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 mytomcat:latest'
         //def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql -p 3306:3306')
         //def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
-        mvnImage.run('--network book-net'){
+        mvnImage.withRun('--network book-net'){
              sh 'mvn verify'
         }
         post{
