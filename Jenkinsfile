@@ -6,7 +6,6 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
-    	   sh 'docker kill $(docker ps -q)'
     	   sh 'docker system prune -f'
     	   
     }
@@ -32,16 +31,14 @@ node {
         }
         post{
            always{
-				//sqlContainer.stop();
-        		//tomcatContainer.stop();
+				sh 'docker container stop mysql tomcat'
+				sh 'docker container rm mysql tomcat'
+				sh 'docker system prune -f'
         		mvnImage.inside(){
                 	junit 'book-functional-tests/target/failsafe-reports/*.xml'
             	}
-           }
- 
-           
+           }  
         }
-
     }
 }
 
