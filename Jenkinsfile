@@ -19,14 +19,23 @@ node {
     }
     
     stage('Test'){
-        def sqlContainer = sqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
-        def tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
+        def sqlContainer = sqlImage.run('-d --name mysql -p 3306:3306')
+        def tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090')
         mvnImage.inside(){
              sh 'mvn verify'
-             junit 'book-functional-tests/target/failsafe-reports/*.xml'
         }
-        sqlContainer.stop();
-        tomcatContainer.stop();
+        post{
+           always{
+				sqlContainer.stop();
+        		tomcatContainer.stop();
+        		mvnImage.inside(){
+                	junit 'book-functional-tests/target/failsafe-reports/*.xml'
+            	}
+           }
+ 
+           
+        }
+
     }
 }
 
