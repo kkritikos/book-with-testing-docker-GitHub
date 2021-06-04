@@ -43,14 +43,20 @@ pipeline {
                 echo "Build is starting!!!"
             }
         }
-        stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
+        
+        stage('PreBuild'){
+            steps{
                 script{
                     sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
                     tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
                 }
+            }
+        }
 
+        
+        stage('Build') {
+            steps {
+                sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('PreTest'){
