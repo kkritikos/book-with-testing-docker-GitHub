@@ -28,7 +28,7 @@ node {
         //def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql -p 3306:3306')
         //def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
         mvnImage.withRun('--network book-net'){
-             sh 'mvn verify'
+        	c -> sh 'mvn verify'   
         }
         post{
            always{
