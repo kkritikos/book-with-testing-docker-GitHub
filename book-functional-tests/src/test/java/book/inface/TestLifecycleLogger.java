@@ -28,7 +28,7 @@ public interface TestLifecycleLogger {
     @BeforeAll
 	public static void setup() {
 		// Setting BaseURI once
-		baseURI = "http://tomcat:8090";
+		baseURI = "http://docker:8090";
 		// Setting BasePath once
 		basePath ="/book";
 		// Setting authentication
