@@ -6,7 +6,10 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
-    	   sh 'docker container stop mysql tomcat'
+    	   try{
+    	    	sh 'docker container stop mysql tomcat'   
+    	   }
+    	   catch(e){}
     	   sh 'docker system prune -f'
     	   
     }
@@ -43,6 +46,22 @@ node {
             	}
 		}
     }
+    
+    stage('Install_Production') {
+        	when {
+	            environment name: 'DEPLOY_TO', value: 'production'
+	        }
+            steps {
+            	docker.withRegistry('https://index.docker.io/v1', 'github-cred') {
+            		tomcatImage.push()
+            	}
+                //sh "mvn -B -DskipTests -DskipITs -Dregistry.username=${user} -Dregistry.password=${password} install"
+                /*sh('''
+                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
+                    git push origin HEAD:$TARGET_BRANCH
+                ''')*/
+            }
+     }
 }
 
 
