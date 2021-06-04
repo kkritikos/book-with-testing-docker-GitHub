@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
-            args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock'
+            args '-v /root/.m2:/root/.m2'
         }
     }
     stages {
@@ -21,8 +21,8 @@ pipeline {
         		//DOCKER_HOST = 'unix:///var/run/docker.sock'
     		//}
             steps {	
-                sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
-                //sh 'export DOCKER_HOST=tcp://docker:2376; mvn verify' 
+                //sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
+                sh 'export DOCKER_HOST=tcp://docker:2376; mvn verify' 
             }
             post {
                 always {
