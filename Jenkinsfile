@@ -5,9 +5,9 @@ node {
      * maps the port (`3306`) to a known port on the host machine.
      */
     def sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
-    docker.image('mysql:latest').withRun('-d --name mysql -p 3306:3306 mysql:latest')
+    sqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
     def tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
-    docker.image('mytomcat:latest').withRun('-d --name mytomcat -p 8090:8090 mytomcat:latest').inside{sh 'echo "does it work?"'}
+    tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest').inside{sh 'echo "does it work?"'}
 }
 
 /*
