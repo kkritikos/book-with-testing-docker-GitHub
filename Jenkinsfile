@@ -51,6 +51,7 @@ node {
     		
     		if (DEPLOY_TO == 'production'){
     		     docker.withRegistry('https://index.docker.io/v1', 'github-cred') {
+    		     	tomcatImage.tag('kkritikos/book:latest')
             		tomcatImage.push()
             	 }
     		}
