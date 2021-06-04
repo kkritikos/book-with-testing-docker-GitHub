@@ -6,7 +6,7 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
-    	   //sh 'docker kill $(docker ps -q)'
+    	   sh 'docker kill $(docker ps -q)'
     	   sh 'docker system prune -f'
     	   
     }
@@ -23,15 +23,17 @@ node {
     
     stage('Test'){
     	sh 'docker network create book-net'
-        def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql -p 3306:3306')
-        def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
+        sh 'docker run -d --name mysql --network book-net --network-alias mysql mysql:latest'
+        sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 mytomcat:latest'
+        //def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql -p 3306:3306')
+        //def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
         mvnImage.run('--network book-net'){
              sh 'mvn verify'
         }
         post{
            always{
-				sqlContainer.stop();
-        		tomcatContainer.stop();
+				//sqlContainer.stop();
+        		//tomcatContainer.stop();
         		mvnImage.inside(){
                 	junit 'book-functional-tests/target/failsafe-reports/*.xml'
             	}
