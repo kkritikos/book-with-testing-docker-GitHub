@@ -6,6 +6,7 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
+    	   sh 'docker container stop mysql tomcat'
     	   sh 'docker system prune -f'
     	   
     }
