@@ -6,7 +6,7 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
-    	   sh 'docker kill $(docker ps -q)'
+    	   //sh 'docker kill $(docker ps -q)'
     	   sh 'docker system prune -f'
     	   
     }
