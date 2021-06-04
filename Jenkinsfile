@@ -1,9 +1,7 @@
-node {
+/*node {
+	def receiver_container
     checkout scm
-    /*
-     * In order to communicate with the MySQL server, this Pipeline explicitly
-     * maps the port (`3306`) to a known port on the host machine.
-     */
+    
     def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11') 
     stage('Init'){
     	   mvnImage.inside(){
@@ -23,9 +21,16 @@ node {
     def tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
     tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
 }
+*/
 
-/*
-pipeline {
+
+def sqlContainer
+def tomcatContainer
+def sqlImage
+def tomcatImage
+
+
+pipeline {	
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
@@ -41,16 +46,31 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
+                script{
+                    sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
+                    tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
+                }
+
             }
         }
         stage('Test') {
             steps {	
+            	script{
+            	     sqlContainer = sqlsqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
+            	     tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
+            	}
+
                 sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
                 //sh 'export DOCKER_HOST=tcp://127.0.0.1:2375; mvn verify' 
             }
             post {
                 always {
-                    junit 'book-functional-tests/target/failsafe-reports/*.xml' 
+                    junit 'book-functional-tests/target/failsafe-reports/*.xml'
+                    script{
+						sqlContainer.stop()
+						tomcatContainer.stop()
+                    }
+ 
                 }
             }
         }
@@ -79,4 +99,4 @@ pipeline {
             }
         }
     }
-}*/
+}
