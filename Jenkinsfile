@@ -7,6 +7,8 @@ node {
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
     	   sh 'docker system prune -f'
+    	   sh 'docker container prune -f'
+    	   sh 'docker image prune -f'
     }
     
     def sqlImage
