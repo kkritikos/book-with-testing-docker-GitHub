@@ -1,5 +1,4 @@
-/*node {
-	def receiver_container
+node {
     checkout scm
     
     def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11') 
@@ -9,22 +8,30 @@
     	   }
     }
     
-    
+    def sqlImage
+    def tomcatImage
     stage('Build') {
             mvnImage.inside(){
                 sh 'mvn -B -DskipTests clean package'
             }
+            sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
+            tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
     }
-
-    def sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
-    sqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
-    def tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
-    tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
+    
+    stage('Test'){
+        def sqlContainer = sqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
+        def tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
+        mvnImage.inside(){
+             sh 'mvn verify'
+             junit 'book-functional-tests/target/failsafe-reports/*.xml'
+        }
+        sqlContainer.stop();
+        tomcatContainer.stop();
+    }
 }
-*/
 
 
-def sqlContainer
+/*def sqlContainer
 def tomcatContainer
 def sqlImage
 def tomcatImage
@@ -118,4 +125,4 @@ pipeline {
         }
 
     }
-}
+}*/
