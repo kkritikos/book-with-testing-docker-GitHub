@@ -23,7 +23,7 @@ node {
     
     stage('Test'){
         def sqlContainer = sqlImage.run('-d --name mysql -p 3306:3306')
-        def tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090')
+        def tomcatContainer = tomcatImage.run('-d --name mytomcat --net bridge -p 8090:8090')
         sh 'sleep 30'
         mvnImage.inside(){
              sh 'mvn verify'
