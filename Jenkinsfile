@@ -23,11 +23,11 @@ node {
     
     stage('Test'){
     	sh 'docker network create book-net'
-        def sqlContainer = sqlImage.run('-d --name mysql --network book-net --network-alias mysql -p 3306:3306')
-        def tomcatContainer = tomcatImage.run('-d --name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
-        mvnImage.run('--network book-net'){
+        def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql')
+        def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
+        /*mvnImage.run('--network book-net'){
              sh 'mvn verify'
-        }
+        }*/
         post{
            always{
 				sqlContainer.stop();
