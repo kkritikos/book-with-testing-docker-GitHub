@@ -2,10 +2,11 @@ node {
     checkout scm
     
     def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11') 
-    stage('Init'){
+    stage('Init_Clean'){
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
+    	   sh 'docker system prune'
     }
     
     def sqlImage
