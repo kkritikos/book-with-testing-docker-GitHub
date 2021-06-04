@@ -45,6 +45,7 @@ pipeline {
         }
         
         stage('PreBuild'){
+        	agent any
             steps{
                 script{
                     sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
@@ -52,13 +53,13 @@ pipeline {
                 }
             }
         }
-
         
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
             }
         }
+        
         stage('PreTest'){
             agent any
             steps{
@@ -69,6 +70,7 @@ pipeline {
             }
 
         }
+        
         stage('Test') {
             steps {	
                 sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
@@ -80,6 +82,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Install_Development') {
         	when {
 	            environment name: 'DEPLOY_TO', value: 'development'
@@ -92,6 +95,7 @@ pipeline {
                 ''')
             }
         }
+        
         stage('Install_Production') {
         	when {
 	            environment name: 'DEPLOY_TO', value: 'production'
