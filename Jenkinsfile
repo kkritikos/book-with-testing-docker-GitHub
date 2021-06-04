@@ -22,24 +22,26 @@ node {
     }
     
     stage('Test'){
-    	sh 'docker network create book-net'
-        sh 'docker run -d --name mysql --network book-net --network-alias mysql mysql:latest'
-        sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 mytomcat:latest'
-        //def sqlContainer = sqlImage.run('--name mysql --network book-net --network-alias mysql -p 3306:3306')
-        //def tomcatContainer = tomcatImage.run('--name mytomcat --network book-net --network-alias tomcat -p 8090:8090')
-        mvnImage.inside('--network book-net'){
-      		sh 'mvn verify'   
+        try{
+        	sh 'docker network create book-net'
+        	sh 'docker run -d --name mysql --network book-net --network-alias mysql mysql:latest'
+        	sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 mytomcat:latest'
+        	mvnImage.inside('--network book-net'){
+      			sh 'mvn verify'   
+        	}    
         }
-        post{
-           always{
-				sh 'docker container stop mysql tomcat'
-				sh 'docker container rm mysql tomcat'
-				sh 'docker system prune -f'
-        		mvnImage.inside(){
+        catch(e){
+        	echo 'Something went wrong during testing'
+        	throw e    
+        }
+		finally{
+		    sh 'docker container stop mysql tomcat'
+			sh 'docker container rm mysql tomcat'
+			sh 'docker system prune -f'
+		    mvnImage.inside(){
                 	junit 'book-functional-tests/target/failsafe-reports/*.xml'
             	}
-           }  
-        }
+		}
     }
 }
 
