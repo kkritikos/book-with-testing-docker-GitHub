@@ -6,7 +6,7 @@ node {
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
-    	   sh 'docker system prune'
+    	   sh 'docker system prune -f'
     }
     
     def sqlImage
