@@ -4,20 +4,18 @@ node {
      * In order to communicate with the MySQL server, this Pipeline explicitly
      * maps the port (`3306`) to a known port on the host machine.
      */
+    def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11') 
     stage('Init'){
-        steps {
-           echo "Build is starting!!!"
-        }
+    	   mvnImage.inside(){
+		     sh 'echo "Build is starting!!!"'    	       
+    	   }
     }
     
-    def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11')
+    
     stage('Build') {
-        steps {
             mvnImage.inside(){
                 sh 'mvn -B -DskipTests clean package'
             }
-
-        }
     }
 
     def sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
