@@ -53,24 +53,24 @@ pipeline {
 
             }
         }
-        stage('Test') {
-            steps {	
-            	script{
+        stage('PreTest'){
+            agent any
+            steps{
+                script{
             	     sqlContainer = sqlsqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
             	     tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
             	}
+            }
 
+        }
+        stage('Test') {
+            steps {	
                 sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
                 //sh 'export DOCKER_HOST=tcp://127.0.0.1:2375; mvn verify' 
             }
             post {
                 always {
                     junit 'book-functional-tests/target/failsafe-reports/*.xml'
-                    script{
-						sqlContainer.stop()
-						tomcatContainer.stop()
-                    }
- 
                 }
             }
         }
@@ -98,5 +98,14 @@ pipeline {
                 ''')
             }
         }
+    }
+    post {
+        always{
+            script{
+					sqlContainer.stop()
+					tomcatContainer.stop()
+            }
+        }
+
     }
 }
