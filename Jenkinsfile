@@ -1,13 +1,24 @@
 node {
     checkout scm
     
-    def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11') 
+    def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11')
+    def postfix
+    def label = 'kkritikos/book:'
+    if ($BRANCH_NAME=='master'){
+         label += 'latest-stable'
+         postfix='prod'
+    }
+    else{
+         label += ('dev' + $BUILD_ID)
+         postfix='dev' 
+    }
+    	 
     stage('Init_Clean'){
     	   mvnImage.inside(){
 		     sh 'echo "Build is starting!!!"'    	       
     	   }
     	   try{
-    	    	sh 'docker container stop mysql tomcat'   
+    	    	sh 'docker container stop mysql_' + postfix + ' tomcat_' + postfix   
     	   }
     	   catch(e){}
     	   sh 'docker system prune -f'
@@ -21,15 +32,15 @@ node {
                 sh 'mvn -B -DskipTests clean package'
             }
             sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
-            tomcatImage = docker.build("kkritikos/book:latest", "-f Dockerfile .")
+            tomcatImage = docker.build(label, "-f Dockerfile .")
     }
     
     stage('Test'){
         try{
-        	sh 'docker network create book-net'
-        	sh 'docker run -d --name mysql --network book-net --network-alias mysql mysql:latest'
-        	sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 kkritikos/book:latest'
-        	mvnImage.inside('--network book-net'){
+        	sh 'docker network create book-net_' + postfix
+        	sh 'docker run -d --name mysql_' + postfix + ' --network book-net_' + postfix + ' --network-alias mysql mysql:latest'
+        	sh 'docker run -d --name tomcat_' + postfix + ' --network book-net_' + postfix + ' --network-alias tomcat -p 8090:8090 ' + label
+        	mvnImage.inside('--network book-net_' + postfix){
       			sh 'mvn verify'   
         	}    
         }
@@ -38,124 +49,24 @@ node {
         	throw e    
         }
 		finally{
-		    sh 'docker container stop mysql tomcat'
-			sh 'docker container rm mysql tomcat'
-			sh 'docker system prune -f'
+		    try{
+				sh 'docker container stop mysql_' + postfix + ' tomcat_' + postfix
+				sh 'docker container rm mysql_' + postfix + ' tomcat_' + postfix
+				sh 'docker system prune -f'		        
+		    }
+		    catch(e){
+		        echo 'Something went wrong while destroying the testing containers'
+		    }
+
 		    mvnImage.inside(){
                 	junit 'book-functional-tests/target/failsafe-reports/*.xml'
-            	}
+            }
 		}
     }
     
-    stage('Install_Production') {
-    		
-    		if (DEPLOY_TO == 'production'){
-    		     docker.withRegistry('https://index.docker.io/v1/', 'github-cred') {
-            		tomcatImage.push()
-            	 }
-    		}
-
-                //sh "mvn -B -DskipTests -DskipITs -Dregistry.username=${user} -Dregistry.password=${password} install"
-                /*sh('''
-                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
-                    git push origin HEAD:$TARGET_BRANCH
-                ''')*/
-     }
+    stage('Push') {
+    	docker.withRegistry('https://index.docker.io/v1/', 'github-cred') {
+        	tomcatImage.push()
+        }
+    }
 }
-
-
-/*def sqlContainer
-def tomcatContainer
-def sqlImage
-def tomcatImage
-
-
-pipeline {	
-    agent {
-        docker {
-            image 'maven:3.8.1-adoptopenjdk-11'
-            args '-v /root/.m2:/root/.m2 -v /var/run/docker.sock:/var/run/docker.sock --privileged'
-        }
-    }
-    stages {
-    	stage('Init') {
-            steps {
-                echo "Build is starting!!!"
-            }
-        }
-        
-        stage('PreBuild'){
-        	agent any
-            steps{
-                script{
-                    sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
-                    tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
-            }
-        }
-        
-        stage('PreTest'){
-            agent any
-            steps{
-                script{
-            	     sqlContainer = sqlsqlImage.run('-d --name mysql -p 3306:3306 mysql:latest')
-            	     tomcatContainer = tomcatImage.run('-d --name mytomcat -p 8090:8090 mytomcat:latest')
-            	}
-            }
-
-        }
-        
-        stage('Test') {
-            steps {	
-                sh 'export DOCKER_HOST=unix:///var/run/docker.sock; mvn verify' 
-                //sh 'export DOCKER_HOST=tcp://127.0.0.1:2375; mvn verify' 
-            }
-            post {
-                always {
-                    junit 'book-functional-tests/target/failsafe-reports/*.xml'
-                }
-            }
-        }
-        
-        stage('Install_Development') {
-        	when {
-	            environment name: 'DEPLOY_TO', value: 'development'
-	        }
-            steps {
-                sh "mvn -B -DskipTests -DskipITs install -DskipImage -Dcargo.hostname=${hostname} -Dcargo.protocol=${protocol} -Dcargo.servlet.port=${port} -Dcargo.remote.username=${user} -Dcargo.remote.password=${pass}"
-                sh('''
-                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
-                    git push origin HEAD:$TARGET_BRANCH
-                ''')
-            }
-        }
-        
-        stage('Install_Production') {
-        	when {
-	            environment name: 'DEPLOY_TO', value: 'production'
-	        }
-            steps {
-                sh "mvn -B -DskipTests -DskipITs -Dregistry.username=${user} -Dregistry.password=${password} install"
-                sh('''
-                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
-                    git push origin HEAD:$TARGET_BRANCH
-                ''')
-            }
-        }
-    }
-    post {
-        always{
-            script{
-					sqlContainer.stop()
-					tomcatContainer.stop()
-            }
-        }
-
-    }
-}*/
