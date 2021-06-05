@@ -4,13 +4,13 @@ node {
     def mvnImage = docker.image('maven:3.8.1-adoptopenjdk-11')
     def postfix
     def label = 'kkritikos/book:'
-    if ($BRANCH_NAME=='master'){
+    if (env.BRANCH_NAME=='master'){
          label += 'latest-stable'
          postfix='prod'
     }
     else{
-         label += ('dev' + $BUILD_ID)
-         postfix='dev' 
+         label += ('dev' + env.BUILD_ID)
+         postfix='dev' + env.BUILD_ID
     }
     	 
     stage('Init_Clean'){
