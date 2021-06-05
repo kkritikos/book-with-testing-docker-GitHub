@@ -39,7 +39,7 @@ node {
         try{
         	sh 'docker network create book-net_' + postfix
         	sh 'docker run -d --name mysql_' + postfix + ' --network book-net_' + postfix + ' --network-alias mysql mysql:latest'
-        	sh 'docker run -d --name tomcat_' + postfix + ' --network book-net_' + postfix + ' --network-alias tomcat -p 8090:8090 ' + label
+        	sh 'docker run -d --name tomcat_' + postfix + ' --network book-net_' + postfix + ' --network-alias tomcat ' + label
         	mvnImage.inside('--network book-net_' + postfix){
       			sh 'mvn verify'   
         	}    
