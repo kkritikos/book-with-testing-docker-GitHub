@@ -9,7 +9,7 @@ node {
          postfix='prod'
     }
     else{
-         label += ('dev' + env.BUILD_ID)
+         label += ('dev-' + env.BUILD_ID)
          postfix='dev' + env.BUILD_ID
     }
     	 
