@@ -21,14 +21,14 @@ node {
                 sh 'mvn -B -DskipTests clean package'
             }
             sqlImage = docker.build("mysql:latest", "-f Dockerfile_mysql .")
-            tomcatImage = docker.build("mytomcat:latest", "-f Dockerfile .")
+            tomcatImage = docker.build("kkritikos/book:latest", "-f Dockerfile .")
     }
     
     stage('Test'){
         try{
         	sh 'docker network create book-net'
         	sh 'docker run -d --name mysql --network book-net --network-alias mysql mysql:latest'
-        	sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 mytomcat:latest'
+        	sh 'docker run -d --name tomcat --network book-net --network-alias tomcat -p 8090:8090 kkritikos/book:latest'
         	mvnImage.inside('--network book-net'){
       			sh 'mvn verify'   
         	}    
@@ -51,7 +51,6 @@ node {
     		
     		if (DEPLOY_TO == 'production'){
     		     docker.withRegistry('https://index.docker.io/v1', 'github-cred') {
-    		     	tomcatImage.tag('kkritikos/book:latest')
             		tomcatImage.push()
             	 }
     		}
