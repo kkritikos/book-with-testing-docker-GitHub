@@ -50,7 +50,7 @@ node {
     stage('Install_Production') {
     		
     		if (DEPLOY_TO == 'production'){
-    		     docker.withRegistry('https://index.docker.io/v1', 'github-cred') {
+    		     docker.withRegistry('https://index.docker.io/v1/', 'github-cred') {
             		tomcatImage.push()
             	 }
     		}
