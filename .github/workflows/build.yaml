@@ -76,6 +76,8 @@ jobs:
       # Label used to access the service container
       mysql:
         image: mysql:latest
+        ports:
+          - 3306:3306
         env:
           MYSQL_RANDOM_ROOT_PASSWORD: yes
         volumes: 
@@ -85,6 +87,12 @@ jobs:
         ports:
           - 8090:8090
     steps:
+      - name: Verify MySQL connection from host
+        run: |
+          echo "${{ toJson(job) }}"
+          sudo apt-get install -y mysql-client
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -udomcretan -padmin_root_kyr1 -e "SHOW DATABASES"
+          docker logs "${{ job.services.mysql.id }}"
       - uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
