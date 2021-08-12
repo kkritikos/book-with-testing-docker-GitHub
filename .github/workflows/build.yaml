@@ -80,6 +80,8 @@ jobs:
           - ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/
       tomcat:
         image: kkritikos/book:latest
+        ports:
+          - 8090:8090
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
