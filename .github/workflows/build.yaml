@@ -70,8 +70,8 @@ jobs:
       - name: setup containers for running the test
         run: | 
           docker network create book-net
-          docker run -d --name mysql --network-alias mysql -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD}} -v ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/ mysql:latest
-          docker run -d --name tomcat --network-alias tomcat book:latest
+          docker run -d --name mysql --network book-net --network-alias mysql -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD}} -v ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/ mysql:latest
+          docker run -d --name tomcat --network book-net --network-alias tomcat book:latest
       - name: Verify MySQL connection from host and run SQL script
         run: |
           echo "${{ toJson(job) }}"
