@@ -70,14 +70,14 @@ jobs:
       - name: setup containers for running the test
         run: | 
           docker network create book-net
-          docker run -d --name mysql --network book-net --network-alias mysql -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD}} -v ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/ mysql:latest
+          docker run -d --name mysql --network book-net --network-alias mysql -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD}} mysql:latest
           docker run -d --name tomcat --network-alias tomcat -p 8090:8090 book:latest
       - name: Verify MySQL connection from host and run SQL script
         run: |
           echo "${{ toJson(job) }}"
-          #sudo apt-get install -y mysql-client
-          #mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -p${{secrets.MYSQL_ROOT_PASSWORD}} < ./mysql/setup.sql
-          #mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -p${{secrets.MYSQL_ROOT_PASSWORD}} -e "SHOW DATABASES"
+          sudo apt-get install -y mysql-client
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -p${{secrets.MYSQL_ROOT_PASSWORD}} < ./mysql/setup.sql
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -p${{secrets.MYSQL_ROOT_PASSWORD}} -e "SHOW DATABASES"
           #docker logs "${{ job.services.mysql.id }}"
           docker logs mysql
       - name: Set up JDK 11
