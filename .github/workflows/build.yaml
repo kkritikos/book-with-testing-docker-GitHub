@@ -38,6 +38,8 @@ jobs:
       # This is the a separate action that sets up buildx runner
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        with:
+          driver: docker # defaults to "docker-containerized"
       # So now you can use Actions' own caching!
       - name: Cache Docker layers
         uses: actions/cache@v2
@@ -57,7 +59,6 @@ jobs:
         with:
           context: .
           push: false
-          load: true
           tags: book:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -85,7 +86,7 @@ jobs:
           #volumes: 
           #- /home/runner/work/book-with-testing-docker-GitHub/mysql:/docker-entrypoint-initdb.d/
       tomcat:
-        image: kkritikos/book:latest
+        image: book:latest
         ports:
           - 8090:8090
     steps:
