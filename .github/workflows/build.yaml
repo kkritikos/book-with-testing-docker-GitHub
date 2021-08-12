@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
+          push: false
           tags: kkritikos/book:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -76,6 +76,8 @@ jobs:
       # Label used to access the service container
       mysql:
         image: mysql:latest
+        env:
+          MYSQL_RANDOM_ROOT_PASSWORD: yes
         volumes: 
           - ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/
       tomcat:
