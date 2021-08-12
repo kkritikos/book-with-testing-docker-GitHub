@@ -82,7 +82,7 @@ jobs:
           #MYSQL_RANDOM_ROOT_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: admin
         volumes: 
-          - ${{github.workspace}}/mysql:/docker-entrypoint-initdb.d/
+          - /home/runner/work/book-with-testing-docker-GitHub/mysql:/docker-entrypoint-initdb.d/
       tomcat:
         image: kkritikos/book:latest
         ports:
