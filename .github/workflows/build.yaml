@@ -57,7 +57,8 @@ jobs:
         with:
           context: .
           push: false
-          tags: kkritikos/book:latest
+          load: true
+          tags: book:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
         # This ugly bit is necessary if you don't want your cache to grow forever
@@ -116,4 +117,11 @@ jobs:
         with:
           name: Test-Result
           path: results
-
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps: 
+      - name: push to github
+        run: |
+          docker tag book:latest kkritikos/book:latest
+          docker push kkritikos/book:latest
