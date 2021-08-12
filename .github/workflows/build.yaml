@@ -92,7 +92,7 @@ jobs:
         run: |
           echo "${{ toJson(job) }}"
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -padmin < ${{github.workspace}}/mysql/setup.sql
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -padmin < ./mysql/setup.sql
           mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot -padmin -e "SHOW DATABASES"
           docker logs "${{ job.services.mysql.id }}"
       - uses: actions/checkout@v2
